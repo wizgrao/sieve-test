@@ -32,8 +32,9 @@ def deploy_function(fn: SieveFunction):
     if p.wait() != 0:
         raise Exception("deploy failed")
 
-def test_function(fn: SieveFunction):
-    p = subprocess.Popen(["pytest"], cwd=fn.path)
+def test_functions(fns: List[SieveFunction]):
+    fn_paths = [fn.path for fn in fns]
+    p = subprocess.Popen(["pytest", "-n", "40"] + fn_paths)
     if p.wait() != 0:
         raise Exception("deploy failed")
 
@@ -49,8 +50,7 @@ def main(config: str="sieve-config.yml", functions: List[str]=[], deploy_all: bo
             deploy_fns = list(sieve_config.functions.keys())
         for fn in deploy_fns:
             deploy_function(sieve_config.functions[fn])
-        for fn in functions:
-            test_function(sieve_config.functions[fn])
+        test_functions([sieve_config.functions[fn] for fn in functions])
 
 def get_test_env() -> str:
     return os.getenv("SIEVE_TEST_ENV") or ""
