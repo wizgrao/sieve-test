@@ -13,7 +13,8 @@ jobs:
       - name: Set outputs
         id: vars
         run:
-          echo "env_name=${GITHUB_REF//\//-}-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}};
+          echo "env_name=${branch//\//-}-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
