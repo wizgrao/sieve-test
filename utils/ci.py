@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from typing import List
 import subprocess
 import os
+import sieve
 
 class SieveFunction(BaseModel):
     path: str
@@ -70,7 +71,10 @@ def get_function_uri(name: str, org:str= "", version: str=""):
         return f"{org}/{fn_name}"
     return f"{org}/{fn_name}:{version}"
 
-
+def get_env_passthrough():
+    if not is_test_env():
+        return []
+    return sieve.Env(name="SIEVE_TEST_ENV", description="test environment", default=os.getenv("SIEVE_TEST_ENV") or ""), sieve.Env(name="ORGANIZATION_NAME", description="test environment", default=os.getenv("ORGANIZATION_NAME") or "")
 
 if __name__ == "__main__":
     typer.run(main)
