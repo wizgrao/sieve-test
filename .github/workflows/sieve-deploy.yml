@@ -19,7 +19,8 @@ jobs:
         id: vars
         run:
           REF=${{github.ref}}
-          echo "env_name=${REF/\//-}-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo $REF
+          echo "env_name=${REF//\//-}-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - run: python utils/ci.py
         env:
           SIEVE_API_KEY: ${{ secrets.SIEVE_API_KEY }}
