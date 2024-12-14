@@ -19,7 +19,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-      - run: pip install sievedata
+      - run: pip install sievedata pytest
       - run: python utils/ci.py
         env:
           SIEVE_API_KEY: ${{ secrets.SIEVE_API_KEY }}
