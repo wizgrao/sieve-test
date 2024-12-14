@@ -28,8 +28,13 @@ def invert_config(cfg: SieveConfig) -> dict[str, InvertedFunction]:
 
 def deploy_function(fn: SieveFunction):
     p = subprocess.Popen(["sieve", "deploy"], cwd=fn.path)
+    if p.wait() != 0:
+        raise Exception("deploy failed")
 
-    p.wait()
+def test_function(fn: SieveFunction):
+    p = subprocess.Popen(["pytest"], cwd=fn.path)
+    if p.wait() != 0:
+        raise Exception("deploy failed")
 
 def main(config: str="sieve-config.yml", functions: List[str]=[], deploy_all: bool=False):
     with open(config, 'r') as config_file:
@@ -43,6 +48,8 @@ def main(config: str="sieve-config.yml", functions: List[str]=[], deploy_all: bo
             deploy_fns = list(sieve_config.functions.keys())
         for fn in deploy_fns:
             deploy_function(sieve_config.functions[fn])
+        for fn in functions:
+            test_function(sieve_config.functions[fn])
 
 def get_test_env() -> str:
     return os.getenv("SIEVE_TEST_ENV") or ""
