@@ -18,7 +18,7 @@ jobs:
       - name: Set outputs
         id: vars
         run:
-          REF=${{GITHUB_REF}}
+          REF=${{github.ref}}
           echo "env_name=${REF/\//-}-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - run: python utils/ci.py
         env:
