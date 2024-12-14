@@ -1,8 +1,8 @@
 name: Sieve Deploy
 on:
   push:
-    branches:
-      - '!main'
+    branches-ignore:
+      - 'main'
 jobs:
   deploy:
     name: Deploy app
