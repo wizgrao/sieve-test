@@ -1,0 +1,7 @@
+functions:
+  test-a:
+    path: test_a
+  test-b:
+    path: test_b
+    depends-on:
+      - test-a

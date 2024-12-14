@@ -2,7 +2,7 @@ name: Sieve Deploy
 on:
   push:
     branches:
-      - main
+      - '!main'
 jobs:
   deploy:
     name: Deploy app
@@ -15,6 +15,13 @@ jobs:
         with:
           python-version: '3.x'
       - run: pip install sievedata
-      - run: sieve deploy
+      - name: Set outputs
+        id: vars
+        run:
+          REF=${{GITHUB_REF}}
+          echo "env_name=${REF/\//-}-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - run: python utils/ci.py
         env:
           SIEVE_API_KEY: ${{ secrets.SIEVE_API_KEY }}
+          ORGANIZATION_NAME: sieve-internal
+          SIEVE_TEST_ENV: ${{ steps.vars.outputs.env_name }}
