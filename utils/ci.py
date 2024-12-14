@@ -36,7 +36,7 @@ def test_functions(fns: List[SieveFunction]):
     fn_paths = [fn.path for fn in fns]
     p = subprocess.Popen(["pytest", "-n", "40"] + fn_paths)
     if p.wait() != 0:
-        raise Exception("deploy failed")
+        raise Exception("tests failed")
 
 def main(config: str="sieve-config.yml", functions: List[str]=[], deploy_all: bool=False):
     with open(config, 'r') as config_file:
