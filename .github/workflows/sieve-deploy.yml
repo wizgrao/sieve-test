@@ -10,17 +10,19 @@ jobs:
     concurrency: deploy-group    # optional: ensure only one action runs at a time
     steps:
       - uses: actions/checkout@v4
+      - name: Set outputs
+        id: vars
+        run:
+          REF=${{github.ref}}
+          echo "yuh"
+          echo $REF
+          echo "yeet"
+          echo "env_name=${REF//\//-}-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
       - run: pip install sievedata
-      - name: Set outputs
-        id: vars
-        run:
-          REF=${{github.ref}}
-          echo $REF
-          echo "env_name=${REF//\//-}-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - run: python utils/ci.py
         env:
           SIEVE_API_KEY: ${{ secrets.SIEVE_API_KEY }}
