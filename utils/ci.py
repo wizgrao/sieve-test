@@ -38,7 +38,9 @@ def test_functions(fns: List[SieveFunction]):
     if p.wait() != 0:
         raise Exception("tests failed")
 
-def main(config: str="sieve-config.yml", functions: List[str]=[], deploy_all: bool=False):
+def main(functions: List[str], config: str="sieve-config.yml", deploy_all: bool=False):
+    for fn in functions:
+        print('yeet ' + fn)
     with open(config, 'r') as config_file:
         config_yaml = yaml.safe_load(config_file)
         sieve_config = SieveConfig(**config_yaml)
