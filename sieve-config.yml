@@ -1,6 +1,7 @@
 functions:
   test-a:
     path: test_a
+    file-name: a.py
   test-group-a:
     path: group_a
     groups:
