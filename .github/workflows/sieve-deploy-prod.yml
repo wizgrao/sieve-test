@@ -1,0 +1,29 @@
+name: Sieve Deploy Prod
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  deploy:
+    name: Deploy app
+    runs-on: ubuntu-latest
+    concurrency: deploy-group    # optional: ensure only one action runs at a time
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set outputs
+        id: vars
+        run:
+          branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}};
+          echo "env_name=${branch//\//-}-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: pip install sievedata pytest pytest-xdist
+      - run: echo SIEVE_API_KEY | grep -E '^[a-zA-Z0-9]+\([a-zA-Z0-9, -]+\)!?:' | sed -E 's/^[a-zA-Z0-9]+\(([a-zA-Z0-9, -]+)\)!?:.*$/\1/' | sed 's/,//g' | sed 's/ /\n/g' | sort | uniq | xargs python utils/ci.py
+        env:
+          SIEVE_API_KEY: ${{ secrets.SIEVE_API_KEY }}
+          SIEVE_COMMIT_MESSAGE: ${{ github.event.head_commit.message }} 
+          ORGANIZATION_NAME: sieve-internal
