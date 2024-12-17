@@ -6,7 +6,7 @@ functions:
     groups:
       - test-group
   test-group-b:
-    path: group_a
+    path: group_b
     groups:
       - test-group
   test-group-b:

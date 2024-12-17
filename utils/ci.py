@@ -10,7 +10,7 @@ import sieve
 class SieveFunction(BaseModel):
     path: str
     depends_on: List[str] = Field(alias="depends-on", default=[])
-    groups: List[str] = Field(alias="depends-on", default=[])
+    groups: List[str] = Field(default=[])
 
 class SieveConfig(BaseModel):
     functions: dict[str, SieveFunction]
@@ -26,7 +26,7 @@ def build_index(config: SieveConfig) -> dict[str, List[str]]:
     for name, fn in config.functions.items():
         ret['utils'].append(name)
         ret['all'].append(name)
-        ret[name] = ['name']
+        ret[name] = [name]
         for group in fn.groups:
             if group not in ret:
                 ret[group] = []
