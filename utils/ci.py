@@ -11,6 +11,7 @@ class SieveFunction(BaseModel):
     path: str
     depends_on: List[str] = Field(alias="depends-on", default=[])
     groups: List[str] = Field(default=[])
+    file_name: str= Field(default="", alias="file-name")
 
 class SieveConfig(BaseModel):
     functions: dict[str, SieveFunction]
@@ -43,6 +44,9 @@ def invert_config(cfg: SieveConfig) -> dict[str, InvertedFunction]:
     return ret
 
 def deploy_function(fn: SieveFunction):
+    cmd = ["sieve", "deploy"]
+    if len(fn.file_name) > 0:
+        cmd += [fn.file_name]
     p = subprocess.Popen(["sieve", "deploy"], cwd=fn.path)
     if p.wait() != 0:
         raise Exception("deploy failed")
@@ -109,6 +113,7 @@ def main(functions: Annotated[List[str], typer.Argument()], config: str="sieve-c
     with open(config, 'r') as config_file:
         config_yaml = yaml.safe_load(config_file)
         sieve_config = SieveConfig(**config_yaml)
+        print(sieve_config)
         index = build_index(sieve_config)
         functions = list(set(reduce(list.__add__, [index[keyword] for keyword in functions])))
 
