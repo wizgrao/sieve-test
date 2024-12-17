@@ -1,6 +1,16 @@
 functions:
   test-a:
     path: test_a
+  test-group-a:
+    path: group_a
+    groups:
+      - test-group
+  test-group-b:
+    path: group_a
+    groups:
+      - test-group
+  test-group-b:
+    path: group_b
   test-b:
     path: test_b
     depends-on:
