@@ -26,4 +26,4 @@ jobs:
         env:
           SIEVE_API_KEY: ${{ secrets.SIEVE_API_KEY }}
           SIEVE_COMMIT_MESSAGE: ${{ github.event.head_commit.message }} 
-          ORGANIZATION_NAME: sieve-internal
+          ORGANIZATION_NAME: sieve

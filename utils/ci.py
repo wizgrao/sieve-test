@@ -1,7 +1,7 @@
 import yaml
 import typer
 from pydantic import BaseModel, Field
-from typing import List, Set
+from typing import Annotated, List, Set
 import subprocess
 import os
 import sieve
@@ -90,13 +90,13 @@ def get_env_passthrough():
         return []
     return sieve.Env(name="SIEVE_TEST_ENV", description="test environment", default=os.getenv("SIEVE_TEST_ENV") or ""), sieve.Env(name="ORGANIZATION_NAME", description="test environment", default=os.getenv("ORGANIZATION_NAME") or "")
 
-def main(functions: List[str], config: str="sieve-config.yml", deploy_all: bool=False, test_env: bool=False):
+def main(functions: Annotated[List[str], typer.Argument()], config: str="sieve-config.yml", test_env: bool=False):
     with open(config, 'r') as config_file:
         config_yaml = yaml.safe_load(config_file)
         sieve_config = SieveConfig(**config_yaml)
         print(sieve_config)
 
-        if len(functions) == 0 or 'all' in functions or 'utils' in functions:
+        if 'all' in functions or 'utils' in functions:
             functions = list(sieve_config.functions.keys())
 
         deploy_fns = functions
