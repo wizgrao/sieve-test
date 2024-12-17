@@ -22,7 +22,8 @@ jobs:
         with:
           python-version: '3.x'
       - run: pip install sievedata pytest pytest-xdist
-      - run: git log --pretty=format:%s origin/main..HEAD | grep -E '^[a-zA-Z0-9]+\([a-zA-Z0-9, -]+\)!?:' | sed -E 's/^[a-zA-Z0-9]+\(([a-zA-Z0-9, -]+)\)!?:.*$/\1/' | sed 's/,//g' | sed 's/ /\n/g' | sort | uniq | xargs python utils/ci.py --test-env
+      - name: Deploy and Test on Dev Environment
+        run: git log --pretty=format:%s origin/main..HEAD | grep -E '^[a-zA-Z0-9]+\([a-zA-Z0-9, -]+\)!?:' | sed -E 's/^[a-zA-Z0-9]+\(([a-zA-Z0-9, -]+)\)!?:.*$/\1/' | sed 's/,//g' | sed 's/ /\n/g' | sort | uniq | xargs python utils/ci.py --test-env
         env:
           SIEVE_API_KEY: ${{ secrets.SIEVE_INTERNAL_API_KEY }}
           ORGANIZATION_NAME: sieve-internal
