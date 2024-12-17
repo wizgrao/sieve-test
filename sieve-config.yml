@@ -9,8 +9,6 @@ functions:
     path: group_b
     groups:
       - test-group
-  test-group-b:
-    path: group_b
   test-b:
     path: test_b
     depends-on:
