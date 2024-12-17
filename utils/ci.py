@@ -1,7 +1,7 @@
 import yaml
 import typer
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Set
 import subprocess
 import os
 import sieve
@@ -38,21 +38,33 @@ def test_functions(fns: List[SieveFunction]):
     if p.wait() != 0:
         raise Exception("tests failed")
 
-def main(functions: List[str], config: str="sieve-config.yml", deploy_all: bool=False):
-    for fn in functions:
-        print('yeet ' + fn)
-    with open(config, 'r') as config_file:
-        config_yaml = yaml.safe_load(config_file)
-        sieve_config = SieveConfig(**config_yaml)
-        print(sieve_config)
-        if len(functions) == 0:
-            functions = list(sieve_config.functions.keys())
-        deploy_fns = functions
-        if deploy_all:
-            deploy_fns = list(sieve_config.functions.keys())
-        for fn in deploy_fns:
-            deploy_function(sieve_config.functions[fn])
-        test_functions([sieve_config.functions[fn] for fn in functions])
+def extend_test_list(cfg: SieveConfig, function_list: List[str]) -> List[str]:
+    visited: Set[str] = set()
+    inverted_config = invert_config(cfg)
+    def visit(s: str):
+        if s in visited:
+            return
+        visited.add(s)
+        for child in inverted_config[s].depended_by:
+            visit(child)
+    for fn in function_list:
+        visit(fn)
+
+    return list(visited)
+
+def extend_deploy_list(cfg: SieveConfig, function_list: List[str]) -> List[str]:
+    visited: Set[str] = set()
+    def visit(s: str):
+        if s in visited:
+            return
+        visited.add(s)
+        for child in cfg.functions[s].depends_on:
+            visit(child)
+
+    for fn in function_list:
+        visit(fn)
+
+    return list(visited)
 
 def get_test_env() -> str:
     return os.getenv("SIEVE_TEST_ENV") or ""
@@ -77,6 +89,30 @@ def get_env_passthrough():
     if not is_test_env():
         return []
     return sieve.Env(name="SIEVE_TEST_ENV", description="test environment", default=os.getenv("SIEVE_TEST_ENV") or ""), sieve.Env(name="ORGANIZATION_NAME", description="test environment", default=os.getenv("ORGANIZATION_NAME") or "")
+
+def main(functions: List[str], config: str="sieve-config.yml", deploy_all: bool=False, test_env: bool=False):
+    with open(config, 'r') as config_file:
+        config_yaml = yaml.safe_load(config_file)
+        sieve_config = SieveConfig(**config_yaml)
+        print(sieve_config)
+
+        if len(functions) == 0 or 'all' in functions or 'utils' in functions:
+            functions = list(sieve_config.functions.keys())
+
+        functions = extend_test_list(sieve_config, functions)
+
+        deploy_fns = functions
+        if deploy_all:
+            deploy_fns = list(sieve_config.functions.keys())
+
+        if test_env:
+            deploy_fns = extend_deploy_list(sieve_config, deploy_fns)
+
+        for fn in deploy_fns:
+            deploy_function(sieve_config.functions[fn])
+
+        test_functions([sieve_config.functions[fn] for fn in functions])
+
 
 if __name__ == "__main__":
     typer.run(main)
