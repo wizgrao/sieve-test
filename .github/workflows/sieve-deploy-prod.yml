@@ -1,7 +1,7 @@
-name: Sieve Deploy
+name: Sieve Deploy Prod
 on:
   push:
-    branches-ignore:
+    branches:
       - 'main'
 jobs:
   deploy:
@@ -22,8 +22,8 @@ jobs:
         with:
           python-version: '3.x'
       - run: pip install sievedata pytest pytest-xdist
-      - run: git log --pretty=format:%s origin/main..HEAD | grep -E '^[a-zA-Z0-9]+\([a-zA-Z0-9, -]+\)!?:' | sed -E 's/^[a-zA-Z0-9]+\(([a-zA-Z0-9, -]+)\)!?:.*$/\1/' | sed 's/,//g' | sed 's/ /\n/g' | sort | uniq | xargs python utils/ci.py --test-env
+      - run: echo SIEVE_API_KEY | grep -E '^[a-zA-Z0-9]+\([a-zA-Z0-9, -]+\)!?:' | sed -E 's/^[a-zA-Z0-9]+\(([a-zA-Z0-9, -]+)\)!?:.*$/\1/' | sed 's/,//g' | sed 's/ /\n/g' | sort | uniq | xargs python utils/ci.py
         env:
           SIEVE_API_KEY: ${{ secrets.SIEVE_API_KEY }}
+          SIEVE_COMMIT_MESSAGE: ${{ github.event.head_commit.message }} 
           ORGANIZATION_NAME: sieve-internal
-          SIEVE_TEST_ENV: ${{ steps.vars.outputs.env_name }}

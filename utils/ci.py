@@ -34,7 +34,7 @@ def deploy_function(fn: SieveFunction):
 
 def test_functions(fns: List[SieveFunction]):
     fn_paths = [fn.path for fn in fns]
-    p = subprocess.Popen(["pytest", "-n", "40"] + fn_paths)
+    p = subprocess.Popen(["pytest", "-n", "40", "-vv"] + fn_paths)
     if p.wait() != 0:
         raise Exception("tests failed")
 
@@ -99,15 +99,10 @@ def main(functions: List[str], config: str="sieve-config.yml", deploy_all: bool=
         if len(functions) == 0 or 'all' in functions or 'utils' in functions:
             functions = list(sieve_config.functions.keys())
 
-        functions = extend_test_list(sieve_config, functions)
-
         deploy_fns = functions
-        if deploy_all:
-            deploy_fns = list(sieve_config.functions.keys())
-
+        functions = extend_test_list(sieve_config, functions)
         if test_env:
-            deploy_fns = extend_deploy_list(sieve_config, deploy_fns)
-
+            deploy_fns = extend_deploy_list(sieve_config, functions)
         for fn in deploy_fns:
             deploy_function(sieve_config.functions[fn])
 
